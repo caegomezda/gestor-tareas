@@ -4,7 +4,7 @@ import '../models/task_model.dart';
 import '../services/firestore_service.dart';
 
 class AddTaskScreen extends StatefulWidget {
-  final Task? task; // Si es null, crear nueva; si no, editar
+  final Task? task;
 
   const AddTaskScreen({super.key, this.task});
 
@@ -22,6 +22,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   String _status = 'pendiente';
   DateTime? _dueDate;
   bool _isLoading = false;
+  bool _isDaily = false; // <-- NUEVA LÍNEA
 
   @override
   void initState() {
@@ -33,9 +34,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _priority = widget.task!.priority;
       _status = widget.task!.status;
       _dueDate = widget.task!.dueDate;
+      _isDaily = widget.task!.isDaily; // <-- NUEVA LÍNEA
     }
   }
 
+  // ... (Método _selectDueDate se mantiene igual)
   Future<void> _selectDueDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -74,7 +77,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       final estimatedMinutes = int.parse(_estimatedMinutesController.text);
 
       if (widget.task == null) {
-        // Crear nueva tarea
         final newTask = Task(
           id: '',
           title: _titleController.text.trim(),
@@ -85,10 +87,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           priority: _priority,
           status: _status,
           userId: user.uid,
+          isDaily: _isDaily, // <-- NUEVA LÍNEA
         );
 
         await FirestoreService.createTask(newTask);
-
+        // ... rest of snackbar logic
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -97,7 +100,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           ),
         );
       } else {
-        // Editar tarea existente
         final updatedTask = widget.task!.copyWith(
           title: _titleController.text.trim(),
           description: _descriptionController.text.trim(),
@@ -105,10 +107,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           estimatedMinutes: estimatedMinutes,
           priority: _priority,
           status: _status,
+          isDaily: _isDaily, // <-- NUEVA LÍNEA
         );
 
         await FirestoreService.updateTask(updatedTask);
-
+        // ... rest of snackbar logic
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -143,6 +146,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // ... (Campos de Título, Descripción, Tiempo y Prioridad se mantienen igual)
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(
@@ -211,6 +215,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+              
+              // SECCIÓN DE ESTADO
               InputDecorator(
                 decoration: const InputDecoration(
                   labelText: 'Estado',
@@ -222,18 +228,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     value: _status,
                     isExpanded: true,
                     items: const [
-                      DropdownMenuItem(
-                        value: 'pendiente',
-                        child: Text('⏳ Pendiente'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'en_progreso',
-                        child: Text('🔵 En progreso'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'completada',
-                        child: Text('✅ Completada'),
-                      ),
+                      DropdownMenuItem(value: 'pendiente', child: Text('⏳ Pendiente')),
+                      DropdownMenuItem(value: 'en_progreso', child: Text('🔵 En progreso')),
+                      DropdownMenuItem(value: 'completada', child: Text('✅ Completada')),
                     ],
                     onChanged: (value) {
                       setState(() => _status = value!);
@@ -242,6 +239,20 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+
+              // NUEVA FUNCIONALIDAD: INTERRUPTOR DIARIO
+              SwitchListTile(
+                title: const Text('Tarea Diaria'),
+                subtitle: const Text('Se reinicia cada día y afecta la disciplina'),
+                secondary: const Icon(Icons.repeat),
+                value: _isDaily,
+                onChanged: (bool value) {
+                  setState(() => _isDaily = value);
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // ... (Botones de Fecha y Guardar se mantienen igual)
               OutlinedButton.icon(
                 onPressed: _selectDueDate,
                 icon: const Icon(Icons.calendar_today),

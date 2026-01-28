@@ -11,6 +11,9 @@ class Task {
   final String priority; // 'alta', 'media', 'baja'
   final String status; // 'pendiente', 'en_progreso', 'completada'
   final String userId;
+  // NUEVOS CAMPOS
+  final bool isDaily; 
+  final DateTime? lastReset;
 
   Task({
     required this.id,
@@ -23,6 +26,8 @@ class Task {
     required this.priority,
     required this.status,
     required this.userId,
+    this.isDaily = false, 
+    this.lastReset,
   });
 
   // Convertir de Firestore a Task
@@ -41,6 +46,8 @@ class Task {
       priority: data['priority'] ?? 'media',
       status: data['status'] ?? 'pendiente',
       userId: data['userId'] ?? '',
+      isDaily: data['isDaily'] ?? false,
+      lastReset: data['lastReset'] != null ? (data['lastReset'] as Timestamp).toDate() : null,
     );
   }
 
@@ -56,6 +63,8 @@ class Task {
       'priority': priority,
       'status': status,
       'userId': userId,
+      'isDaily': isDaily,
+      'lastReset': lastReset != null ? Timestamp.fromDate(lastReset!) : null,
     };
   }
 
@@ -71,6 +80,8 @@ class Task {
     String? priority,
     String? status,
     String? userId,
+    bool? isDaily,
+    DateTime? lastReset,
   }) {
     return Task(
       id: id ?? this.id,
@@ -83,6 +94,8 @@ class Task {
       priority: priority ?? this.priority,
       status: status ?? this.status,
       userId: userId ?? this.userId,
+      isDaily: isDaily ?? this.isDaily,
+      lastReset: lastReset ?? this.lastReset,
     );
   }
 }

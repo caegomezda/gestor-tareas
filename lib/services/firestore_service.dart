@@ -82,8 +82,13 @@ class FirestoreService {
           .get();
 
       final tasks = snapshot.docs.map((doc) => Task.fromFirestore(doc)).toList();
+      // OBTENER FALLOS DIARIOS
+      final failuresSnapshot = await _db.collection('daily_failures')
+          .where('userId', isEqualTo: userId)
+          .get();
 
       int totalTasks = tasks.length;
+      int totalFailures = failuresSnapshot.docs.length;
       int completedTasks = tasks.where((t) => t.status == 'completada').length;
       int pendingTasks = tasks.where((t) => t.status == 'pendiente').length;
       int inProgressTasks = tasks.where((t) => t.status == 'en_progreso').length;
@@ -98,6 +103,10 @@ class FirestoreService {
       int mediumPriority = tasks.where((t) => t.priority == 'media').length;
       int lowPriority = tasks.where((t) => t.priority == 'baja').length;
 
+      // Calculamos una "Puntuación de Disciplina" (ejemplo: base 100, resta 5 por cada fallo)
+      double disciplineScore = 100.0 - (totalFailures * 5.0);
+      if (disciplineScore < 0) disciplineScore = 0;
+
       return {
         'totalTasks': totalTasks,
         'completedTasks': completedTasks,
@@ -109,9 +118,53 @@ class FirestoreService {
         'mediumPriority': mediumPriority,
         'lowPriority': lowPriority,
         'completionRate': totalTasks > 0 ? (completedTasks / totalTasks * 100) : 0,
+        'totalFailures': totalFailures, // Nuevo dato
+        'disciplineScore': disciplineScore, // Nuevo dato
       };
     } catch (e) {
       throw Exception('Error al obtener estadísticas: $e');
     }
+  }
+
+  // Nueva función para procesar tareas al inicio del día
+  static Future<void> checkAndResetDailyTasks(String userId) async {
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+
+    final snapshot = await _db
+        .collection(_tasksCollection)
+        .where('userId', isEqualTo: userId)
+        .where('isDaily', isEqualTo: true)
+        .get();
+
+    WriteBatch batch = _db.batch();
+
+    for (var doc in snapshot.docs) {
+      final task = Task.fromFirestore(doc);
+      
+      // Si la tarea no se ha reseteado hoy
+      if (task.lastReset == null || task.lastReset!.isBefore(todayStart)) {
+        
+        // SI NO SE COMPLETÓ: Generar indicador negativo
+        if (task.status != 'completada') {
+          DocumentReference failRef = _db.collection('daily_failures').doc();
+          batch.set(failRef, {
+            'userId': userId,
+            'taskId': task.id,
+            'taskTitle': task.title,
+            'date': Timestamp.fromDate(task.lastReset ?? task.createdAt),
+            'penaltyPoints': 10, // Valor arbitrario para el dashboard
+          });
+        }
+
+        // RESETEAR para el nuevo día
+        batch.update(doc.reference, {
+          'status': 'pendiente',
+          'actualMinutes': 0,
+          'lastReset': Timestamp.fromDate(todayStart),
+        });
+      }
+    }
+    await batch.commit();
   }
 }
