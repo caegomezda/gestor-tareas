@@ -209,7 +209,11 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Mis Tareas'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.bar_chart),
+            icon: const Icon(
+              Icons.bar_chart,
+              size: 50.0,
+              color: Colors.blueAccent
+              ),
             onPressed: () {
               Navigator.push(
                 context,
@@ -220,11 +224,17 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             tooltip: 'Estadísticas',
           ),
+          const SizedBox(width: 10),
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(
+              Icons.logout, 
+              size: 50.0,
+              color: Colors.redAccent,
+              ),
             onPressed: _logout,
             tooltip: 'Cerrar sesión',
           ),
+          const SizedBox(width: 10),
         ],
       ),
       body: Column(
