@@ -123,12 +123,25 @@ class _HomeScreenState extends State<HomeScreen> {
               leading: const Icon(Icons.delete, color: Colors.red),
               title: const Text('Eliminar'),
               onTap: () async {
+                // 1. Guardamos la referencia al Messenger ANTES de cerrar nada
+                final messenger = ScaffoldMessenger.of(context);
+                
+                // 2. Cerramos el diálogo/BottomSheet
                 Navigator.pop(context);
-                await FirestoreService.deleteTask(task.id);
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Tarea eliminada')),
-                );
+                
+                try {
+                  // 3. Borramos la tarea
+                  await FirestoreService.deleteTask(task.id);
+                  
+                  // 4. Usamos la referencia guardada (ya no necesitamos 'mounted' del widget local)
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Tarea eliminada')),
+                  );
+                } catch (e) {
+                  messenger.showSnackBar(
+                    SnackBar(content: Text('Error al eliminar: $e')),
+                  );
+                }
               },
             ),
           ],
