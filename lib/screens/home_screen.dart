@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gestor_tareas/screens/routines_screen.dart';
 import '../models/task_model.dart';
 import '../services/firebase_auth_service.dart';
 import '../services/firestore_service.dart';
@@ -16,6 +17,26 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _selectedFilter = 'todas'; // todas, pendiente, en_progreso, completada
+
+  @override
+  void initState() {
+    super.initState();
+    // Ejecutamos la limpieza de tareas diarias al abrir la app
+    _initializeDailyTasks();
+  }
+
+  Future<void> _initializeDailyTasks() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        await FirestoreService.checkAndResetDailyTasks(user.uid);
+        // No es estrictamente necesario el setState aquí porque 
+        // el StreamBuilder detectará los cambios automáticamente
+      } catch (e) {
+        debugPrint('Error al resetear tareas: $e');
+      }
+    }
+  }
 
   Color _getPriorityColor(String priority) {
     switch (priority) {
@@ -80,6 +101,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showTaskOptions(Task task) {
+
+    final user = FirebaseAuth.instance.currentUser;
+
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -98,12 +122,31 @@ class _HomeScreenState extends State<HomeScreen> {
             if (task.status != 'en_progreso')
               ListTile(
                 leading: const Icon(Icons.play_arrow, color: Colors.blue),
-                title: const Text('Marcar en progreso'),
+                title: const Text('Comenzar tarea (Enfoque)'),
                 onTap: () async {
-                  Navigator.pop(context);
-                  await FirestoreService.updateTask(
-                    task.copyWith(status: 'en_progreso'),
-                  );
+                  // 1. Guardamos las referencias ANTES del await
+                  final messenger = ScaffoldMessenger.of(context);
+                  final navigator = Navigator.of(context);
+                  final userId = user?.uid;
+
+                  // 2. Cerramos el BottomSheet inmediatamente
+                  navigator.pop();
+
+                  if (userId != null) {
+                    try {
+                      // 3. Ejecutamos la lógica asíncrona
+                      await FirestoreService.startTask(userId, task.id);
+                      
+                      // 4. Usamos la referencia guardada del messenger
+                      messenger.showSnackBar(
+                        SnackBar(content: Text('Enfoque iniciado en: ${task.title}')),
+                      );
+                    } catch (e) {
+                      messenger.showSnackBar(
+                        SnackBar(content: Text('Error: $e')),
+                      );
+                    }
+                  }
                 },
               ),
             ListTile(
@@ -210,6 +253,21 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(
+              Icons.cached, // Icono que representa repetición/rutina
+              size: 50.0,
+              color: Colors.purpleAccent,
+            ),
+            tooltip: 'Gestionar Rutinas',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const RoutinesScreen()),
+              );
+            },
+          ),
+          const SizedBox(width: 10),
+          IconButton(
+            icon: const Icon(
               Icons.bar_chart,
               size: 50.0,
               color: Colors.blueAccent
@@ -246,14 +304,14 @@ class _HomeScreenState extends State<HomeScreen> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  FilterChip(
-                    label: const Text('Todas'),
-                    selected: _selectedFilter == 'todas',
-                    onSelected: (selected) {
-                      setState(() => _selectedFilter = 'todas');
-                    },
-                  ),
-                  const SizedBox(width: 8),
+                  // FilterChip(
+                  //   label: const Text('Todas'),
+                  //   selected: _selectedFilter == 'todas',
+                  //   onSelected: (selected) {
+                  //     setState(() => _selectedFilter = 'todas');
+                  //   },
+                  // ),
+                  // const SizedBox(width: 5),
                   FilterChip(
                     label: const Text('Pendientes'),
                     selected: _selectedFilter == 'pendiente',
@@ -261,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       setState(() => _selectedFilter = 'pendiente');
                     },
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 15),
                   FilterChip(
                     label: const Text('En progreso'),
                     selected: _selectedFilter == 'en_progreso',
@@ -269,7 +327,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       setState(() => _selectedFilter = 'en_progreso');
                     },
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 15),
                   FilterChip(
                     label: const Text('Completadas'),
                     selected: _selectedFilter == 'completada',
@@ -362,6 +420,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             const SizedBox(height: 4),
+
+                            if (task.status == 'en_progreso' && task.estimatedMinutes > 0)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.timer, size: 16, color: Colors.blue),
+                                    const SizedBox(width: 4),
+                                    // Widget que maneja el tiempo restante
+                                    TweenAnimationBuilder<Duration>(
+                                      duration: Duration(minutes: task.estimatedMinutes),
+                                      tween: Tween(begin: Duration(minutes: task.estimatedMinutes), end: Duration.zero),
+                                      builder: (context, value, child) {
+                                        final minutes = value.inMinutes;
+                                        final seconds = value.inSeconds % 60;
+                                        return Text(
+                                          "$minutes:${seconds.toString().padLeft(2, '0')}",
+                                          style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+
                             Row(
                               children: [
                                 Icon(Icons.access_time, size: 14, color: Colors.grey[600]),

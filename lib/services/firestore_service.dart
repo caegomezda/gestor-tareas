@@ -167,4 +167,32 @@ class FirestoreService {
     }
     await batch.commit();
   }
+  
+  // Nueva función para tener solo una tarea en progreso
+  static Future<void> startTask(String userId, String taskId) async {
+    final batch = _db.batch();
+
+    // 1. Buscar cualquier tarea que ya esté 'en_progreso'
+    final activeTasks = await _db
+        .collection(_tasksCollection)
+        .where('userId', isEqualTo: userId)
+        .where('status', isEqualTo: 'en_progreso')
+        .get();
+
+    // 2. Pausar las tareas activas (ponerlas en pendiente)
+    for (var doc in activeTasks.docs) {
+      if (doc.id != taskId) {
+        batch.update(doc.reference, {'status': 'pendiente'});
+      }
+    }
+
+    // 3. Activar la tarea actual
+    final currentTaskRef = _db.collection(_tasksCollection).doc(taskId);
+    batch.update(currentTaskRef, {
+      'status': 'en_progreso',
+      'startTime': Timestamp.fromDate(DateTime.now()), // Para el cálculo del timer
+    });
+
+    await batch.commit();
+  }
 }
