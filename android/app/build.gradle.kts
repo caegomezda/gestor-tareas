@@ -31,6 +31,13 @@ android {
 
     buildTypes {
         release {
+            // Activa la optimización y ofuscación
+            isMinifyEnabled = true 
+            // Indica dónde están las reglas de Flutter y las tuyas
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             signingConfig = signingConfigs.getByName("debug")
         }
     }
