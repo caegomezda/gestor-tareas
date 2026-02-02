@@ -82,7 +82,7 @@ class DashboardScreen extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // 3. TASA DE COMPLETITUD (GRÁFICO CIRCULAR)
-                _buildCompletionRateCard(context, stats['completionRate'] ?? 0.0),
+                _buildCompletionRateCard(context, (stats['completionRate'] as num?)?.toDouble() ?? 0.0),
 
                 const SizedBox(height: 16),
 

@@ -12,7 +12,12 @@
           "package_name": "com.cegomezda.gestor_tareas"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "455595449805-88020hiq7omouh9ls8veu6s8m349p1en.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB_-cM3feYCIj4nrlLqaU3aCKP0Q2bGrZQ"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "455595449805-88020hiq7omouh9ls8veu6s8m349p1en.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "455595449805-1ekls62n1i70i7c1d8bond18ffvm7epl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.gestorTareas"
+              }
+            }
+          ]
         }
       }
     },
@@ -31,7 +48,20 @@
           "package_name": "com.example.gestor_tareas"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "455595449805-hjd4v0ge3m0dvjv1rbsujrntftmi1lgd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.gestor_tareas",
+            "certificate_hash": "abb9b691b85aa09d6a1b7e8b7e3e0cc7bf6988a5"
+          }
+        },
+        {
+          "client_id": "455595449805-88020hiq7omouh9ls8veu6s8m349p1en.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB_-cM3feYCIj4nrlLqaU3aCKP0Q2bGrZQ"
@@ -39,7 +69,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "455595449805-88020hiq7omouh9ls8veu6s8m349p1en.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "455595449805-1ekls62n1i70i7c1d8bond18ffvm7epl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.gestorTareas"
+              }
+            }
+          ]
         }
       }
     }
