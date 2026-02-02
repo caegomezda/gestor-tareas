@@ -1,5 +1,6 @@
-# Mantener clases de Firebase y Google Play Services
+# Reglas para Firebase y tus modelos
 -keep class com.google.firebase.** { *; }
 -keep class com.google.android.gms.** { *; }
-# Prevenir errores de ofuscación en modelos de datos (Tus tareas)
+
+# Reemplaza con el nombre real de tu paquete si es distinto
 -keepclassmembers class com.example.gestor_tareas.models.** { *; }
