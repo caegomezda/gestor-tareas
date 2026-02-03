@@ -123,11 +123,13 @@ class DashboardScreen extends StatelessWidget {
                 Icon(Icons.warning_amber_rounded, 
                   color: isLowPerformance ? Colors.red : Colors.orange),
                 const SizedBox(width: 10),
-                Text(
-                  'DISCIPLINA Y CONSISTENCIA',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isLowPerformance ? Colors.red[900] : Colors.black87,
+                Flexible(
+                  child: Text(
+                    'DISCIPLINA Y CONSISTENCIA',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isLowPerformance ? Colors.red[900] : Colors.black87,
+                    ),
                   ),
                 ),
               ],

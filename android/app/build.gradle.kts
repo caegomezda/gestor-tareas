@@ -34,6 +34,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true
     }
 
     signingConfigs {
@@ -49,10 +50,11 @@ android {
         release {
             // Usa la configuración de firma profesional
             signingConfig = signingConfigs.getByName("release")
-            
+
             // Optimizaciones para reducir el peso del APK
-            isMinifyEnabled = true
-            isShrinkResources = true 
+            // CAMBIA ESTO A FALSE TEMPORALMENTE
+            isMinifyEnabled = false
+            isShrinkResources = false
             
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -69,4 +71,5 @@ flutter {
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("androidx.multidex:multidex:2.0.1")
 }

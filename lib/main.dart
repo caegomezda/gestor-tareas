@@ -8,10 +8,14 @@ import 'screens/home_screen.dart'; // Asegúrate de importar tu pantalla princip
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Inicializar Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Intenta envolverlo en un try-catch para ver si el error ocurre justo aquí
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    print("Error inicializando Firebase: $e");
+  }
   
   runApp(const GestorTareasApp());
 }

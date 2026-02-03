@@ -254,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(
               Icons.cached, // Icono que representa repetición/rutina
-              size: 50.0,
+              size: 30.0,
               color: Colors.purpleAccent,
             ),
             tooltip: 'Gestionar Rutinas',
@@ -269,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(
               Icons.bar_chart,
-              size: 50.0,
+              size: 30.0,
               color: Colors.blueAccent
               ),
             onPressed: () {
@@ -286,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(
               Icons.logout, 
-              size: 50.0,
+              size: 30.0,
               color: Colors.redAccent,
               ),
             onPressed: _logout,
@@ -454,21 +454,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                                 ),
                                 const SizedBox(width: 12),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: _getStatusColor(task.status).withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    _getStatusText(task.status),
-                                    style: TextStyle(
-                                      color: _getStatusColor(task.status),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: _getStatusColor(task.status).withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      _getStatusText(task.status),
+                                      style: TextStyle(
+                                        color: _getStatusColor(task.status),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ),
